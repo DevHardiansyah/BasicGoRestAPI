@@ -2,6 +2,7 @@ package productcontroller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/DevHardiansyah/BasicGoRestAPI/models"
 	"github.com/gin-gonic/gin"
@@ -58,5 +59,16 @@ func Update(c *gin.Context) {
 
 }
 func Delete(c *gin.Context) {
-
+	var product models.Product
+	input := map[string]string{"id": "0"}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	id, _ := strconv.ParseInt(input["id"], 10, 64)
+	if models.DB.Delete(&product, id).RowsAffected == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Tidak dapat menghapus data"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Data Berhasil dihapus"})
 }
